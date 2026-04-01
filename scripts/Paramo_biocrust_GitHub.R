@@ -1,144 +1,216 @@
-setwd("~/R/Collaborations/Tundra_Paramo")
-getwd()
-dir()
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                 PÁRAMO BIOCRUST
+#       Alejandro Salazar (alejandro@lbhi.is)
+#          Isabel C Barrio (isabel@lbhi.is)
+#                   Apr 1, 2026
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# this script loads the datasets and runs the analyses presented 
+# in the paper by Salazar et al. 
+
+set.seed(132)
+
+# libraries---- 
+# packages to be used
+library(tidyverse)
+library(lme4)       # to run the models
+library(lmerTest)   # to estimate p-values
+
+
+# load datasets ----
+# datasets are in separate csv files for cover, surface roughness and stability
+# the datasets for include information on:
+#   "Elevation": elevation of the sampling site (m a.s.l.)   
+#   "Year_edge_glacier": year when the glacier edge was present at the sampling site 
+#   "side": position of the sampling grid within the transect (3 possible values:
+#       c: center, e: east, w: west; corresponds to grids 1, 2 and 3)
+#   "Cover_type": in the cover dataset, type of cover (5 possible values: 
+#       Bare_ground, Biocrust, Lichen, Moss, Vasc_plant)
+#   "Grid": sampling grid (3 per transect)
+#   "Point": for roughness measurements, 9 sampling points were measured per grid
+#   "Cover": percent cover of a particular cover type in a grid
+#   "Stability": stability index (1-6)
+#   "Roughness"
+
+Paramo_biocrust_cover_stats <- read.csv(
+    file = "data/Paramo_biocrust_cover_data_GitHub.csv", sep = ",", header = T) %>% 
+    rename("Elevation" = "Elevation_long") %>%  # for consistency with the other datasets
+    # create a unique identifier per grid
+    mutate(GridID = paste0(Year_edge_glacier, "_", Grid))
+
+Paramo_biocrust_roughness_stats<- read.csv(
+  file = "data/Paramo_biocrust_roughness_data_GitHub.csv", sep=",", header=T) %>% 
+    # create a unique identifier per grid
+    mutate(GridID = paste0(Year_edge_glacier, "_", Grid)) 
+
+Paramo_biocrust_stability_stats<- read.csv(
+    file = "data/Paramo_biocrust_stability_data_GitHub.csv", sep=",", header=T) %>% 
+    # create a unique identifier per grid
+    mutate(GridID = paste0(Year_edge_glacier, "_", Grid)) 
 
 
 
-# =================================== Stats ====================================
+# A. Cover ----
+## general model ----
+# for all models (also when separating by cover type below) we will build 
+# models including a non-linear or linear term for elevation 
+# and compare which one performs better
 
-Paramo_biocrust_cover_stats<- read.csv(file="Paramo_biocrust_cover_data_GitHub.csv", sep=",", header=T) 
-attach(Paramo_biocrust_cover_stats)
-head(Paramo_biocrust_cover_stats)
-
-Paramo_biocrust_stability_stats<- read.csv(file="Paramo_biocrust_stability_data_GitHub.csv", sep=",", header=T) 
-attach(Paramo_biocrust_stability_stats)
-head(Paramo_biocrust_stability_stats)
-
-Paramo_biocrust_roughness_stats<- read.csv(file="Paramo_biocrust_roughness_data_GitHub.csv", sep=",", header=T) 
-attach(Paramo_biocrust_roughness_stats)
-head(Paramo_biocrust_roughness_stats)
-
-
-library(lme4)
-library(lmerTest)
-
-
-# Cover stats
-# ============WITH non-linear term
-Cover_VP_B_BG_nonlin <- lmer(Cover ~ poly(Elevation_long, 2) * Cover_type + (1|Grid),
+# cover model including non-linear term
+Cover_VP_B_BG_nonlin <- lmer(Cover ~ poly(Elevation, 2) * Cover_type + (1|GridID),
                    data = Paramo_biocrust_cover_stats)
-summary(Cover_VP_B_BG_nonlin)
-AIC(Cover_VP_B_BG_nonlin)
+  summary(Cover_VP_B_BG_nonlin)
+    AIC(Cover_VP_B_BG_nonlin)
 
-# ============WITHOUT non-linear term
-Cover_VP_B_BG <- lmer(Cover ~ Elevation_long * Cover_type + (1|Grid), 
+# cover model without non-linear term
+Cover_VP_B_BG <- lmer(Cover ~ Elevation * Cover_type + (1|GridID), 
                       data = Paramo_biocrust_cover_stats)
-summary(Cover_VP_B_BG)
-AIC(Cover_VP_B_BG)
+  summary(Cover_VP_B_BG)
+    AIC(Cover_VP_B_BG)
 
+    AIC(Cover_VP_B_BG_nonlin, Cover_VP_B_BG) # compare the two models, first one is better :)
 
-# ==== Cover models by cover type ==========
-
+    
+## models by cover type ----
+# here we do not need to include Grid as a random effect because there is only
+# one observation of each cover type per grid (so we use LM)
+    
+### a) vascular plants ----
 # Vasc plant non-linear
-Data_Vasc_plant_cover <- subset(Paramo_biocrust_cover_stats, Cover_type == "Vasc_plant")
-Cover_Vasc_plant_cover_nonlin <- lmer(Cover ~ poly(Elevation_long, 2) + (1|Grid),
-                                data = Data_Vasc_plant_cover)
-summary(Cover_Vasc_plant_cover_nonlin)
-AIC(Cover_Vasc_plant_cover_nonlin) # 112
+Cover_Vasc_plant_cover_nonlin <- lm(Cover ~ poly(Elevation, 2),
+                                data = subset(Paramo_biocrust_cover_stats, 
+                                              Cover_type == "Vasc_plant"))
+  summary(Cover_Vasc_plant_cover_nonlin)
+    AIC(Cover_Vasc_plant_cover_nonlin) # 112
 
 # Vasc plant cover linear
-Cover_Vasc_plant_cover_lin <- lmer(Cover ~ Elevation_long + (1|Grid),
-                             data = Data_Vasc_plant_cover)
-summary(Cover_Vasc_plant_cover_lin)
-AIC(Cover_Vasc_plant_cover_lin) # 130
+Cover_Vasc_plant_cover_lin <- lm(Cover ~ Elevation,
+                             data = subset(Paramo_biocrust_cover_stats, 
+                                              Cover_type == "Vasc_plant"))
+  summary(Cover_Vasc_plant_cover_lin)
+    AIC(Cover_Vasc_plant_cover_lin) # 130
+
+       AIC(Cover_Vasc_plant_cover_nonlin, Cover_Vasc_plant_cover_lin) 
+       # compare the two models, second one is a little better :)
 
 
+       
+### b) biocrust ----
 # Biocrust cover non-linear
-Data_bioc_cover <- subset(Paramo_biocrust_cover_stats, Cover_type == "Biocrust")
-Cover_Bioc_cover_nonlin <- lmer(Cover ~ poly(Elevation_long, 2) + (1|Grid),
-                                data = Data_bioc_cover)
-summary(Cover_Bioc_cover_nonlin)
-AIC(Cover_Bioc_cover_nonlin) # 123
+Cover_Bioc_cover_nonlin <- lm(Cover ~ poly(Elevation, 2),
+                                data = subset(Paramo_biocrust_cover_stats, 
+                                              Cover_type == "Biocrust"))
+  summary(Cover_Bioc_cover_nonlin)
+    AIC(Cover_Bioc_cover_nonlin) # 123
 
 # Biocrust cover linear
-Cover_Bioc_cover_lin <- lmer(Cover ~ Elevation_long + (1|Grid),
-                             data = Data_bioc_cover)
-summary(Cover_Bioc_cover_lin)
-AIC(Cover_Bioc_cover_lin) # 144
+Cover_Bioc_cover_lin <- lm(Cover ~ Elevation,
+                             data = subset(Paramo_biocrust_cover_stats, 
+                                           Cover_type == "Biocrust"))
+  summary(Cover_Bioc_cover_lin)
+    AIC(Cover_Bioc_cover_lin) # 144
 
+       AIC(Cover_Bioc_cover_nonlin, Cover_Bioc_cover_lin) 
+       # compare the two models, first one is slightly better :)
+
+       
+### c) moss ----    
 # Moss non-linear
-Data_Moss_cover <- subset(Paramo_biocrust_cover_stats, Cover_type == "Moss")
-Cover_Moss_cover_nonlin <- lmer(Cover ~ poly(Elevation_long, 2) + (1|Grid),
-                                      data = Data_Moss_cover)
-summary(Cover_Moss_cover_nonlin)
-AIC(Cover_Moss_cover_nonlin) # 124
+Cover_Moss_cover_nonlin <- lm(Cover ~ poly(Elevation, 2),
+                                      data = subset(Paramo_biocrust_cover_stats, 
+                                                    Cover_type == "Moss"))
+  summary(Cover_Moss_cover_nonlin)
+    AIC(Cover_Moss_cover_nonlin) # 124
 
 # Moss cover linear
-Cover_Moss_cover_lin <- lmer(Cover ~ Elevation_long + (1|Grid),
-                                   data = Data_Moss_cover)
-summary(Cover_Moss_cover_lin)
-AIC(Cover_Moss_cover_lin) # 144
+Cover_Moss_cover_lin <- lm(Cover ~ Elevation,
+                                   data = subset(Paramo_biocrust_cover_stats, 
+                                                 Cover_type == "Moss"))
+  summary(Cover_Moss_cover_lin)
+    AIC(Cover_Moss_cover_lin) # 144
 
+       AIC(Cover_Moss_cover_nonlin, Cover_Moss_cover_lin) 
+       # the two models perform similarly. Elevation is not significant
 
+       
+### d) lichen ----
 # Lichen non-linear
-Data_Lichen_cover <- subset(Paramo_biocrust_cover_stats, Cover_type == "Lichen")
-Cover_Lichen_cover_nonlin <- lmer(Cover ~ poly(Elevation_long, 2) + (1|Grid),
-                                data = Data_Lichen_cover)
-summary(Cover_Lichen_cover_nonlin)
-AIC(Cover_Lichen_cover_nonlin) # 119
+Cover_Lichen_cover_nonlin <- lm(Cover ~ poly(Elevation, 2),
+                                data = subset(Paramo_biocrust_cover_stats, 
+                                              Cover_type == "Lichen"))
+  summary(Cover_Lichen_cover_nonlin)
+    AIC(Cover_Lichen_cover_nonlin) # 119
 
 # Lichen cover linear
-Cover_Lichen_cover_lin <- lmer(Cover ~ Elevation_long + (1|Grid),
-                             data = Data_Lichen_cover)
-summary(Cover_Lichen_cover_lin)
-AIC(Cover_Lichen_cover_lin) # 139
+Cover_Lichen_cover_lin <- lm(Cover ~ Elevation,
+                             data = subset(Paramo_biocrust_cover_stats, 
+                                           Cover_type == "Lichen"))
+  summary(Cover_Lichen_cover_lin)
+    AIC(Cover_Lichen_cover_lin) # 139
 
+       AIC(Cover_Lichen_cover_nonlin, Cover_Lichen_cover_lin) 
+       # the two models perform similarly. Elevation is not significant
 
+       
+### e) bare ground ----
 # Bare_ground non-linear
-Data_Bare_ground_cover <- subset(Paramo_biocrust_cover_stats, Cover_type == "Bare_ground")
-Cover_Bare_ground_cover_nonlin <- lmer(Cover ~ poly(Elevation_long, 2) + (1|Grid),
-                                  data = Data_Bare_ground_cover)
-summary(Cover_Bare_ground_cover_nonlin)
-AIC(Cover_Bare_ground_cover_nonlin) # 122
+Cover_Bare_ground_cover_nonlin <- lm(Cover ~ poly(Elevation, 2),
+                                  data = subset(Paramo_biocrust_cover_stats, 
+                                                Cover_type == "Bare_ground"))
+  summary(Cover_Bare_ground_cover_nonlin)
+    AIC(Cover_Bare_ground_cover_nonlin) # 122
 
 # Bare_ground cover linear
-Cover_Bare_ground_cover_lin <- lmer(Cover ~ Elevation_long + (1|Grid),
-                               data = Data_Bare_ground_cover)
-summary(Cover_Bare_ground_cover_lin)
-AIC(Cover_Bare_ground_cover_lin) # 150
+Cover_Bare_ground_cover_lin <- lm(Cover ~ Elevation,
+                               data = subset(Paramo_biocrust_cover_stats, 
+                                                Cover_type == "Bare_ground"))
+  summary(Cover_Bare_ground_cover_lin)
+    AIC(Cover_Bare_ground_cover_lin) # 150
+
+       AIC(Cover_Bare_ground_cover_nonlin, Cover_Bare_ground_cover_lin) 
+       # compare the two models, first one is better :)
 
 
 
-# Roughness stats  
-# ============WITH non-linear term
-Roughness_nonlin <- lmer(Roughness ~ poly(Elevation, 2) + (1|Grid),
+# B. Roughness ----
+# here we include the random effect (GridID) as we have nine measurements per Grid
+# roughness model including non-linear term
+Roughness_nonlin <- lmer(Roughness ~ poly(Elevation, 2) + (1|GridID),
                              data = Paramo_biocrust_roughness_stats)
-summary(Roughness_nonlin)
-AIC(Roughness_nonlin)
+  summary(Roughness_nonlin)
+    AIC(Roughness_nonlin)
 
-# ============WITHOUT non-linear term
-Roughness_lin <- lmer(Roughness ~ Elevation + (1|Grid),
+# roughness model without non-linear term
+Roughness_lin <- lmer(Roughness ~ Elevation + (1|GridID),
                          data = Paramo_biocrust_roughness_stats)
-summary(Roughness_lin)
-AIC(Roughness_lin)
+  summary(Roughness_lin)
+    AIC(Roughness_lin)
+
+       AIC(Roughness_nonlin, Roughness_lin) 
+       # compare the two models, first one is better :)
 
 
-# Stability stats
-# ============WITH non-linear term
-Stability_nonlin <- lmer(Stability ~ poly(Elevation, 2) + (1|Grid),
+
+# C. Stability ----
+# here we include the random effect (GridID) as we have three measurements per Grid
+# stability model including non-linear term
+Stability_nonlin <- lmer(Stability ~ poly(Elevation, 2) + (1|GridID),
                          data = Paramo_biocrust_stability_stats)
-summary(Stability_nonlin)
-AIC(Stability_nonlin)
+  summary(Stability_nonlin)
+    AIC(Stability_nonlin)
 
-# ============WITHOUT non-linear term
-Stability_non <- lmer(Stability ~ Elevation + (1|Grid),
+# stability model without non-linear term
+Stability_non <- lmer(Stability ~ Elevation + (1|GridID),
                          data = Paramo_biocrust_stability_stats)
-summary(Stability_non)
-AIC(Stability_non)
+  summary(Stability_non)
+    AIC(Stability_non)
+
+       AIC(Stability_nonlin, Stability_non) 
+       # compare the two models, first one is better :)
 
 
 
-
+# missing data, so I cannot continue...
 # =================================== Plot =====================================
 
 Paramo_biocrust_plot<- read.csv(file="tundra_paramo_biocrust_data_plot.csv", sep=",", header=T) 
