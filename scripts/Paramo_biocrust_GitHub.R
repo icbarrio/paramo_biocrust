@@ -10,11 +10,16 @@
 
 set.seed(132)
 
-# libraries---- 
+# libraries ---- 
 # packages to be used
 library(tidyverse)
 library(lme4)       # to run the models
 library(lmerTest)   # to estimate p-values
+library(ggplot2)    # to plot
+library(gridExtra)
+library(extrafont)
+library(patchwork)
+library(showtext)   # times new roman font
 
 
 # load datasets ----
@@ -210,7 +215,10 @@ Stability_non <- lmer(Stability ~ Elevation + (1|GridID),
 
 
 
-# Figure 1 -----
+# Figures -----
+
+## Figure 3 ----
+# figure in main text
 # load dataset for plotting
 
 Paramo_biocrust_plot <- read.csv(
@@ -224,13 +232,13 @@ Data_elev_4660 <- subset(Paramo_biocrust_plot, Elevation_masl == 4660)
 Data_elev_4690 <- subset(Paramo_biocrust_plot, Elevation_masl == 4690)
 Data_elev_4698 <- subset(Paramo_biocrust_plot, Elevation_masl == 4698)
 
-tiff('figures/Fig_Paramo_biocrust.tiff', units="in", width=8, 
-     height=7, res=600)
+tiff('figures/Fig_Paramo_biocrust.tiff', units = "in", width = 8, 
+     height = 7, res = 600)
 
 par(mfrow=c(1,3))
 
 
-## a) cover ----
+### a) cover ----
 par(mgp=c(2.5,1,0), 
     mar=c(5,4,2,0))
 par(family = "serif")
@@ -342,7 +350,7 @@ text(1, 4717, "A", cex = 1.5)
 
 
 
-## b) roughness ----
+### b) roughness ----
 par(mgp=c(2.5,1,0), 
     mar=c(5,2,2,2))
 par(family = "serif")
@@ -375,7 +383,7 @@ text(-0.5, 4717, "B", cex = 1.5)
 
 
 
-## c) soil stability ----
+### c) soil stability ----
 par(mgp=c(2.5,1,0), 
     mar=c(5,0,2,4))
 par(family = "serif")
@@ -411,4 +419,99 @@ par(xpd = TRUE)
 text(1, 4717, "C", cex = 1.5, cex.lab=1.3)
 
 
+## Figure Sx ----
+# figure in supplementary materials
+# load dataset for plotting
+
+Paramo_biocrust_types<- read.csv(
+      file = "data/Paramo_biocrust_types_GitHub.csv", sep = ";", header = T) %>% 
+      # make sure that the factors are ordered correctly
+      mutate(Biocrust_type = factor(Biocrust_type,
+              levels = c("Bryophyte", "Lichen", "Cyanobacteria")))
+
+# define custom colors for figure (different types of biocrust)
+custom_colors <- c(
+  "Cyanobacteria" = "#D2B48C",
+  "Lichen" = "#A67C52",
+  "Bryophyte" = "#5C4033")
+
+# Max value for top plot
+y_max_top <- max(as.numeric(Paramo_biocrust_types$No_hits), na.rm = TRUE)
+
+# Common theme
+custom_theme <- theme_minimal() +
+  theme(
+    panel.grid = element_blank(),
+    axis.line = element_line(color = "black"),
+    
+    text = element_text(family = "serif", size = 14),
+    axis.title = element_text(size = 16),
+    axis.text = element_text(size = 13),
+    
+    legend.title = element_text(size = 15),
+    legend.text = element_text(size = 13),
+    
+    plot.margin = margin(5, 10, 5, 10)
+  )
+
+# plot first the top plot (nr of hits)
+No_hits_plot <- ggplot(Paramo_biocrust_types,
+  aes(fill = Biocrust_type,
+      y = as.numeric(No_hits),
+      x = Year_glacier_edge)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  # add rectangle to show where the biocrust belt is
+  annotate("rect",
+           xmin = 1952, xmax = 2017,
+           ymin = 0, ymax = y_max_top,
+           fill = NA, color = "black", linetype = "dashed") +
+  # add text to indicate the biocrust belt
+  annotate("text",
+           x = 1954,
+           y = 6.8,
+           label = "Biocrust belt",
+           hjust = 0, vjust = 1,
+           size = 5,
+           family = "serif") +
+  scale_fill_manual(values = custom_colors, name = "Biocrust type") +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(x = NULL, y = "No. of hits") +
+  custom_theme +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = c(0.02, 0.98),
+        legend.justification = c(0, 1))
+
+# and then the bottom plot (percentage of each type of biocrust)
+Relative_No_hits_plot <- ggplot(Paramo_biocrust_types,
+  aes(fill = Biocrust_type,
+      y = as.numeric(No_hits),
+      x = Year_glacier_edge)) +
+  geom_bar(position = "fill", stat = "identity") +
+  # add rectangle to show where the biocrust belt is
+  annotate("rect",
+           xmin = 1952, xmax = 2017,
+           ymin = 0, ymax = 1,
+           fill = NA, color = "black", linetype = "dashed") +
+  scale_fill_manual(values = custom_colors, name = "Biocrust type") +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(x = "Year glacier edge",
+       y = "Relative no. of hits") +
+  custom_theme +
+  theme(legend.position = "none")
+
+tiff('figures/Fig_Paramo_biocrust_types.tiff', units = "in", width = 8, 
+     height = 7, res = 600)
+
+# combine top and bottom panels
+grid.arrange(No_hits_plot,
+  Relative_No_hits_plot,
+  nrow = 2,
+  heights = c(1, 0.9))
+
+No_hits_plot / Relative_No_hits_plot +
+  plot_layout(heights = c(1, 0.9))
+
 dev.off()
+
+
