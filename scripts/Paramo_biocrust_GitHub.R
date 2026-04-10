@@ -6,7 +6,7 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # this script loads the datasets and runs the analyses presented 
-# in the paper by Salazar et al. 
+# in the paper by Salazar et al. currently under review in Alpine Botany
 
 set.seed(132)
 
