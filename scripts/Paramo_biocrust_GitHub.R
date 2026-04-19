@@ -96,7 +96,8 @@ Cover_Vasc_plant_cover_lin <- lm(Cover ~ Elevation,
     AIC(Cover_Vasc_plant_cover_lin) # 130
 
        AIC(Cover_Vasc_plant_cover_nonlin, Cover_Vasc_plant_cover_lin) 
-       # compare the two models, second one is a little better :)
+       # compare the two models: 129.1807 - 127.5528 < 2 --> both models
+       # performed similarly
 
 
        
@@ -106,17 +107,17 @@ Cover_Bioc_cover_nonlin <- lm(Cover ~ poly(Elevation, 2),
                                 data = subset(Paramo_biocrust_cover_stats, 
                                               Cover_type == "Biocrust"))
   summary(Cover_Bioc_cover_nonlin)
-    AIC(Cover_Bioc_cover_nonlin) # 123
+    AIC(Cover_Bioc_cover_nonlin) # 143.64
 
 # Biocrust cover linear
 Cover_Bioc_cover_lin <- lm(Cover ~ Elevation,
                              data = subset(Paramo_biocrust_cover_stats, 
                                            Cover_type == "Biocrust"))
   summary(Cover_Bioc_cover_lin)
-    AIC(Cover_Bioc_cover_lin) # 144
+    AIC(Cover_Bioc_cover_lin) # 144.75
 
        AIC(Cover_Bioc_cover_nonlin, Cover_Bioc_cover_lin) 
-       # compare the two models, first one is slightly better :)
+       # compare the two models, they perform similarly
 
        
 ### c) moss ----    
@@ -125,14 +126,14 @@ Cover_Moss_cover_nonlin <- lm(Cover ~ poly(Elevation, 2),
                                       data = subset(Paramo_biocrust_cover_stats, 
                                                     Cover_type == "Moss"))
   summary(Cover_Moss_cover_nonlin)
-    AIC(Cover_Moss_cover_nonlin) # 124
+    AIC(Cover_Moss_cover_nonlin) # 143.84
 
 # Moss cover linear
 Cover_Moss_cover_lin <- lm(Cover ~ Elevation,
                                    data = subset(Paramo_biocrust_cover_stats, 
                                                  Cover_type == "Moss"))
   summary(Cover_Moss_cover_lin)
-    AIC(Cover_Moss_cover_lin) # 144
+    AIC(Cover_Moss_cover_lin) # 143.54
 
        AIC(Cover_Moss_cover_nonlin, Cover_Moss_cover_lin) 
        # the two models perform similarly. Elevation is not significant
@@ -144,14 +145,14 @@ Cover_Lichen_cover_nonlin <- lm(Cover ~ poly(Elevation, 2),
                                 data = subset(Paramo_biocrust_cover_stats, 
                                               Cover_type == "Lichen"))
   summary(Cover_Lichen_cover_nonlin)
-    AIC(Cover_Lichen_cover_nonlin) # 119
+    AIC(Cover_Lichen_cover_nonlin) # 137.72
 
 # Lichen cover linear
 Cover_Lichen_cover_lin <- lm(Cover ~ Elevation,
                              data = subset(Paramo_biocrust_cover_stats, 
                                            Cover_type == "Lichen"))
   summary(Cover_Lichen_cover_lin)
-    AIC(Cover_Lichen_cover_lin) # 139
+    AIC(Cover_Lichen_cover_lin) # 137.07
 
        AIC(Cover_Lichen_cover_nonlin, Cover_Lichen_cover_lin) 
        # the two models perform similarly. Elevation is not significant
@@ -163,14 +164,14 @@ Cover_Bare_ground_cover_nonlin <- lm(Cover ~ poly(Elevation, 2),
                                   data = subset(Paramo_biocrust_cover_stats, 
                                                 Cover_type == "Bare_ground"))
   summary(Cover_Bare_ground_cover_nonlin)
-    AIC(Cover_Bare_ground_cover_nonlin) # 122
+    AIC(Cover_Bare_ground_cover_nonlin) # 141.90
 
 # Bare_ground cover linear
 Cover_Bare_ground_cover_lin <- lm(Cover ~ Elevation,
                                data = subset(Paramo_biocrust_cover_stats, 
                                                 Cover_type == "Bare_ground"))
   summary(Cover_Bare_ground_cover_lin)
-    AIC(Cover_Bare_ground_cover_lin) # 150
+    AIC(Cover_Bare_ground_cover_lin) # 150.69
 
        AIC(Cover_Bare_ground_cover_nonlin, Cover_Bare_ground_cover_lin) 
        # compare the two models, first one is better :)
