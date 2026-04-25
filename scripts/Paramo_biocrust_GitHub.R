@@ -346,6 +346,25 @@ segments((Data_elev_4690$Cover_biocrust_mean + Data_elev_4690$Cover_biocrust_se)
 segments((Data_elev_4698$Cover_biocrust_mean + Data_elev_4698$Cover_biocrust_se), 4698, 
          (Data_elev_4698$Cover_biocrust_mean - Data_elev_4698$Cover_biocrust_se), 4698, col="darkgoldenrod4")
 
+# add legend
+legend(x = 50, y = 4625,
+       legend = c("Bare ground",
+                  "Biocrust",
+                  "Bryophyte",
+                  "Lichen",
+                  "Vascular"),
+       col = c("grey",
+               "darkgoldenrod4",
+               "palegreen2",
+               "gold",
+               "darkgreen"),
+       pch = c(15, 16, 18, 25, 17),
+       pt.bg = c(NA, NA, NA, "gold", NA),  # needed for filled triangle (pch=25)
+       lty = 1,
+       cex = 1.2,
+       bty = "n")
+text(81, 4575, "plants", cex=1.2)
+
 par(xpd = TRUE)  
 text(1, 4717, "A", cex = 1.5)
 
