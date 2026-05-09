@@ -8,6 +8,10 @@
 # this script loads the datasets and runs the analyses presented 
 # in the paper by Salazar et al. currently under review in Alpine Botany
 
+# the datasets contain information on surface cover (biocrust, moss, lichen, 
+# vascular plants bare ground and rocks), soil surface roughness and stability 
+# across a glacier forefield chronosequence at the Nevados National Park, Colombia.
+
 set.seed(132)
 
 # libraries ---- 
@@ -378,7 +382,7 @@ par(family = "serif")
 plot(Paramo_biocrust_plot$R_sd_mean, 
      Paramo_biocrust_plot$Elevation_masl, type="b",
      xlim=c(-0.5,4.5), yaxt = "n", ylab="",
-     xlab="Surface roughness (SD, cm)",
+     xlab="Soil surface roughness (SD, cm)",
      cex.axis=1.6, cex.lab=1.6,
      pch=16, cex=1.6)
 axis(2, at = tick_positions, labels = FALSE,
@@ -410,7 +414,7 @@ par(family = "serif")
 
 plot(Paramo_biocrust_plot$ss_mean,
      Paramo_biocrust_plot$Elevation_masl, type="b", yaxt = "n", ylab="",
-     xlim=c(1,6), xlab="Surface stability index",
+     xlim=c(1,6), xlab="Soil stability index",
      cex.axis=1.6, cex.lab=1.6,
      pch=16, cex=1.6)
 axis(2, at = tick_positions, labels = FALSE)
@@ -439,7 +443,7 @@ par(xpd = TRUE)
 text(1, 4717, "C", cex = 1.5, cex.lab=1.3)
 
 
-## Figure Sx ----
+## Figure S2 ----
 # figure in supplementary materials
 # load dataset for plotting
 
