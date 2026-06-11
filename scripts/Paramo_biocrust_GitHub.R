@@ -237,121 +237,94 @@ Data_elev_4660 <- subset(Paramo_biocrust_plot, Elevation_masl == 4660)
 Data_elev_4690 <- subset(Paramo_biocrust_plot, Elevation_masl == 4690)
 Data_elev_4698 <- subset(Paramo_biocrust_plot, Elevation_masl == 4698)
 
-tiff('figures/Fig_Paramo_biocrust.tiff', units = "in", width = 8, 
-     height = 7, res = 600)
+tiff('figures/Fig_Paramo_biocrust_rotated.tiff', units = "in", width = 7, 
+     height = 10, res = 600)
 
-par(mfrow=c(1,3))
+par(mfrow=c(3,1),
+    family = "serif")
 
+# common variables
+elev_ticks  <- c(4400, 4648, 4660, 4690, 4698)
+year_labels <- c(1850, 1960, 1990, 2010, 2020)
 
 ### a) cover ----
-par(mgp=c(2.5,1,0), 
-    mar=c(5,4,2,0))
+par(mar = c(0,5,0.5,2),
+    mgp = c(3,0.8,0))
 par(family = "serif")
 
-#Vascular plants
-plot(Paramo_biocrust_plot$Cover_vasc_plant_mean, 
-     Paramo_biocrust_plot$Elevation_masl, 
-     type="b", col="darkgreen", xlim=c(0,110),
-     xlab="Cover (%)", ylab="",
-     cex.axis=1.6, cex.lab=1.6,
-     pch=17, cex=1.6,
-     yaxt = "n")
+plot(Paramo_biocrust_plot$Elevation_masl, 
+     Paramo_biocrust_plot$Cover_vasc_plant_mean, 
+     type = "n", 
+     ylim = c(0, 110), xlim = c(4380, 4710),
+     xaxt = "n", 
+     xlab = "", ylab = "Cover (%)",
+     cex.axis = 1.9,
+     cex.lab = 2)
 
-# Define manual tick positions (elevations)
+# define manual tick positions (elevations)
 tick_positions <- c(4400, 4648, 4660, 4690, 4698)
 
-axis(side = 4, 
+axis(side = 1, 
      at = tick_positions,
      labels = FALSE) 
 
-# Right axis with elevation data
-# Define the labels you want at those positions (years)
-tick_labels <- c(1850, 1960, 1990, 2010, 2020)
+#### vascular plants ----
+lines(Paramo_biocrust_plot$Elevation_masl,
+      Paramo_biocrust_plot$Cover_vasc_plant_mean,
+      type = "b", col = "darkgreen", pch = 17, cex = 1.8)
 
-# Add right axis with manual ticks
-axis(2, at = tick_positions, labels = tick_labels, 
-     cex.axis=1.5, las=2)
+arrows(Paramo_biocrust_plot$Elevation_masl,
+       Paramo_biocrust_plot$Cover_vasc_plant_mean - Paramo_biocrust_plot$Cover_vasc_plant_se,
+       Paramo_biocrust_plot$Elevation_masl,
+       Paramo_biocrust_plot$Cover_vasc_plant_mean + Paramo_biocrust_plot$Cover_vasc_plant_se,
+       angle = 90, code = 3, length = 0.05, col = "darkgreen")
 
-mtext("Year glacier edge", side=2, line=1.5, 
-      cex=1.1)
+#### bare ground ----
+lines(Paramo_biocrust_plot$Elevation_masl,
+      Paramo_biocrust_plot$Cover_rock_bare_ground_mean,
+      type = "b", col = "grey", pch = 15, cex = 1.8)
 
-# add segments for each elevation
-segments((Data_elev_4359$Cover_vasc_plant_mean + Data_elev_4359$Cover_vasc_plant_se), 4400, 
-         (Data_elev_4359$Cover_vasc_plant_mean - Data_elev_4359$Cover_vasc_plant_se), 4400, col="darkgreen")
-segments((Data_elev_4648$Cover_vasc_plant_mean + Data_elev_4648$Cover_vasc_plant_se), 4648, 
-         (Data_elev_4648$Cover_vasc_plant_mean - Data_elev_4648$Cover_vasc_plant_se), 4648, col="darkgreen")
-segments((Data_elev_4660$Cover_vasc_plant_mean + Data_elev_4660$Cover_vasc_plant_se), 4660, 
-         (Data_elev_4660$Cover_vasc_plant_mean - Data_elev_4660$Cover_vasc_plant_se), 4660, col="darkgreen")
-segments((Data_elev_4690$Cover_vasc_plant_mean + Data_elev_4690$Cover_vasc_plant_se), 4690, 
-         (Data_elev_4690$Cover_vasc_plant_mean - Data_elev_4690$Cover_vasc_plant_se), 4690, col="darkgreen")
-segments((Data_elev_4698$Cover_vasc_plant_mean + Data_elev_4698$Cover_vasc_plant_se), 4698, 
-         (Data_elev_4698$Cover_vasc_plant_mean - Data_elev_4698$Cover_vasc_plant_se), 4698, col="darkgreen")
+arrows(Paramo_biocrust_plot$Elevation_masl,
+       Paramo_biocrust_plot$Cover_rock_bare_ground_mean - Paramo_biocrust_plot$Cover_rock_bare_ground_se,
+       Paramo_biocrust_plot$Elevation_masl,
+       Paramo_biocrust_plot$Cover_rock_bare_ground_mean + Paramo_biocrust_plot$Cover_rock_bare_ground_se,
+       angle = 90, code = 3, length = 0.05, col = "grey")
 
-# bare ground
-points(Paramo_biocrust_plot$Cover_rock_bare_ground_mean, 
-       Paramo_biocrust_plot$Elevation_masl, type="b", col="grey",
-       pch=15, cex=1.6)
-segments((Data_elev_4359$Cover_rock_bare_ground_mean + Data_elev_4359$Cover_rock_bare_ground_se), 4400, 
-         (Data_elev_4359$Cover_rock_bare_ground_mean - Data_elev_4359$Cover_rock_bare_ground_se), 4400, col="grey")
-segments((Data_elev_4648$Cover_rock_bare_ground_mean + Data_elev_4648$Cover_rock_bare_ground_se), 4648, 
-         (Data_elev_4648$Cover_rock_bare_ground_mean - Data_elev_4648$Cover_rock_bare_ground_se), 4648, col="grey")
-segments((Data_elev_4660$Cover_rock_bare_ground_mean + Data_elev_4660$Cover_rock_bare_ground_se), 4660, 
-         (Data_elev_4660$Cover_rock_bare_ground_mean - Data_elev_4660$Cover_rock_bare_ground_se), 4660, col="grey")
-segments((Data_elev_4690$Cover_rock_bare_ground_mean + Data_elev_4690$Cover_rock_bare_ground_se), 4690, 
-         (Data_elev_4690$Cover_rock_bare_ground_mean - Data_elev_4690$Cover_rock_bare_ground_se), 4690, col="grey")
-segments((Data_elev_4698$Cover_rock_bare_ground_mean + Data_elev_4698$Cover_rock_bare_ground_se), 4698, 
-         (Data_elev_4698$Cover_rock_bare_ground_mean - Data_elev_4698$Cover_rock_bare_ground_se), 4698, col="grey")
-par(xpd = TRUE)  
-text(1, 4717, "A", cex = 1.5)
+#### moss ----
+lines(Paramo_biocrust_plot$Elevation_masl,
+      Paramo_biocrust_plot$Cover_moss_mean,
+      type = "b", col = "palegreen2", pch = 18, cex = 1.8)
 
+arrows(Paramo_biocrust_plot$Elevation_masl,
+       Paramo_biocrust_plot$Cover_moss_mean - Paramo_biocrust_plot$Cover_moss_se,
+       Paramo_biocrust_plot$Elevation_masl,
+       Paramo_biocrust_plot$Cover_moss_mean + Paramo_biocrust_plot$Cover_moss_se,
+       angle = 90, code = 3, length = 0.05, col = "palegreen2")
 
-# moss cover
-points(Paramo_biocrust_plot$Cover_moss_mean , 
-       Paramo_biocrust_plot$Elevation_masl, type="b", col="palegreen2",
-       pch=18, cex=1.6)
-segments((Data_elev_4359$Cover_moss_mean + Data_elev_4359$Cover_moss_se), 4400, 
-         (Data_elev_4359$Cover_moss_mean - Data_elev_4359$Cover_moss_se), 4400, col="palegreen2")
-segments((Data_elev_4648$Cover_moss_mean + Data_elev_4648$Cover_moss_se), 4648, 
-         (Data_elev_4648$Cover_moss_mean - Data_elev_4648$Cover_moss_se), 4648, col="palegreen2")
-segments((Data_elev_4660$Cover_moss_mean + Data_elev_4660$Cover_moss_se), 4660, 
-         (Data_elev_4660$Cover_moss_mean - Data_elev_4660$Cover_moss_se), 4660, col="palegreen2")
-segments((Data_elev_4690$Cover_moss_mean + Data_elev_4690$Cover_moss_se), 4690, 
-         (Data_elev_4690$Cover_moss_mean - Data_elev_4690$Cover_moss_se), 4690, col="palegreen2")
-segments((Data_elev_4698$Cover_moss_mean + Data_elev_4698$Cover_moss_se), 4698, 
-         (Data_elev_4698$Cover_moss_mean - Data_elev_4698$Cover_moss_se), 4698, col="palegreen2")
+#### lichen ----
+lines(Paramo_biocrust_plot$Elevation_masl,
+      Paramo_biocrust_plot$Cover_lichen_mean,
+      type = "b", col = "gold", pch = 25, bg = "gold", cex = 1.8)
 
-# lichens
-points(Paramo_biocrust_plot$Cover_lichen_mean, 
-       Paramo_biocrust_plot$Elevation_masl, type="b", col="gold",
-       pch=25, bg="gold",cex=1.6)
-segments((Data_elev_4359$Cover_lichen_mean + Data_elev_4359$Cover_lichen_se), 4400, 
-         (Data_elev_4359$Cover_lichen_mean - Data_elev_4359$Cover_lichen_se), 4400, col="gold")
-segments((Data_elev_4648$Cover_lichen_mean + Data_elev_4648$Cover_lichen_se), 4648, 
-         (Data_elev_4648$Cover_lichen_mean - Data_elev_4648$Cover_lichen_se), 4648, col="gold")
-segments((Data_elev_4660$Cover_lichen_mean + Data_elev_4660$Cover_lichen_se), 4660, 
-         (Data_elev_4660$Cover_lichen_mean - Data_elev_4660$Cover_lichen_se), 4660, col="gold")
-segments((Data_elev_4690$Cover_lichen_mean + Data_elev_4690$Cover_lichen_se), 4690, 
-         (Data_elev_4690$Cover_lichen_mean - Data_elev_4690$Cover_lichen_se), 4690, col="gold")
-segments((Data_elev_4698$Cover_lichen_mean + Data_elev_4698$Cover_lichen_se), 4698, 
-         (Data_elev_4698$Cover_lichen_mean - Data_elev_4698$Cover_lichen_se), 4698, col="gold")
+arrows(Paramo_biocrust_plot$Elevation_masl,
+       Paramo_biocrust_plot$Cover_lichen_mean - Paramo_biocrust_plot$Cover_lichen_se,
+       Paramo_biocrust_plot$Elevation_masl,
+       Paramo_biocrust_plot$Cover_lichen_mean + Paramo_biocrust_plot$Cover_lichen_se,
+       angle = 90, code = 3, length = 0.05, col = "gold")
 
-# biocrust
-points(Paramo_biocrust_plot$Cover_biocrust_mean, 
-       Paramo_biocrust_plot$Elevation_masl, type="b", col=("darkgoldenrod4"),
-       pch=16, cex=1.6)
-segments((Data_elev_4359$Cover_biocrust_mean + Data_elev_4359$Cover_biocrust_se), 4400, 
-         (Data_elev_4359$Cover_biocrust_mean - Data_elev_4359$Cover_biocrust_se), 4400, col="darkgoldenrod4")
-segments((Data_elev_4648$Cover_biocrust_mean + Data_elev_4648$Cover_biocrust_se), 4648, 
-         (Data_elev_4648$Cover_biocrust_mean - Data_elev_4648$Cover_biocrust_se), 4648, col="darkgoldenrod4")
-segments((Data_elev_4660$Cover_biocrust_mean + Data_elev_4660$Cover_biocrust_se), 4660, 
-         (Data_elev_4660$Cover_biocrust_mean - Data_elev_4660$Cover_biocrust_se), 4660, col="darkgoldenrod4")
-segments((Data_elev_4690$Cover_biocrust_mean + Data_elev_4690$Cover_biocrust_se), 4690, 
-         (Data_elev_4690$Cover_biocrust_mean - Data_elev_4690$Cover_biocrust_se), 4690, col="darkgoldenrod4")
-segments((Data_elev_4698$Cover_biocrust_mean + Data_elev_4698$Cover_biocrust_se), 4698, 
-         (Data_elev_4698$Cover_biocrust_mean - Data_elev_4698$Cover_biocrust_se), 4698, col="darkgoldenrod4")
+#### biocrust ----
+lines(Paramo_biocrust_plot$Elevation_masl,
+      Paramo_biocrust_plot$Cover_biocrust_mean,
+      type = "b", col = "darkgoldenrod4", pch = 16, cex = 1.8)
+
+arrows(Paramo_biocrust_plot$Elevation_masl,
+       Paramo_biocrust_plot$Cover_biocrust_mean - Paramo_biocrust_plot$Cover_biocrust_se,
+       Paramo_biocrust_plot$Elevation_masl,
+       Paramo_biocrust_plot$Cover_biocrust_mean + Paramo_biocrust_plot$Cover_biocrust_se,
+       angle = 90, code = 3, length = 0.05, col = "darkgoldenrod4")
 
 # add legend
-legend(x = 50, y = 4625,
+legend(x = 4530, y = 110,
        legend = c("Bare ground",
                   "Biocrust",
                   "Bryophyte",
@@ -362,93 +335,124 @@ legend(x = 50, y = 4625,
                "palegreen2",
                "gold",
                "darkgreen"),
-       pch = c(15, 16, 18, 25, 17),
-       pt.bg = c(NA, NA, NA, "gold", NA),  # needed for filled triangle (pch=25)
+       pch = c(15,16,18,25,17),
+       pt.bg = c(NA,NA,NA,"gold",NA),
        lty = 1,
-       cex = 1.2,
-       bty = "n")
-text(81, 4575, "plants", cex=1.2)
+       bty = "n",
+       cex = 2)
 
-par(xpd = TRUE)  
-text(1, 4717, "A", cex = 1.5)
+text(4385,108,"A",font=2,cex=2)
 
 
 
 ### b) roughness ----
-par(mgp=c(2.5,1,0), 
-    mar=c(5,2,2,2))
-par(family = "serif")
+par(mar = c(1,5,1,2),
+    mgp = c(3,0.8,0))
 
-plot(Paramo_biocrust_plot$R_sd_mean, 
-     Paramo_biocrust_plot$Elevation_masl, type="b",
-     xlim=c(-0.5,4.5), yaxt = "n", ylab="",
-     xlab="Soil surface roughness (SD, cm)",
-     cex.axis=1.6, cex.lab=1.6,
-     pch=16, cex=1.6)
-axis(2, at = tick_positions, labels = FALSE,
-     cex.axis=1.3)
-axis(side = 4, 
+plot(Paramo_biocrust_plot$Elevation_masl,
+     Paramo_biocrust_plot$R_sd_mean,
+     type = "b",
+     pch = 16,
+     cex = 1.8,
+     ylim = c(-0.5,4.5),
+     xlim = c(4380,4710),
+     xaxt = "n",
+     xlab = "",
+     ylab = "Soil surface roughness (SD, cm)",
+     cex.axis = 1.9,
+     cex.lab = 2)
+
+# Define manual tick positions (elevations)
+tick_positions <- c(4400, 4648, 4660, 4690, 4698)
+
+axis(side = 1, 
      at = tick_positions,
      labels = FALSE) 
 
-segments((Data_elev_4359$R_sd_mean + Data_elev_4359$R_sd_se), 4400, 
-         (Data_elev_4359$R_sd_mean - Data_elev_4359$R_sd_se), 4400)
-segments((Data_elev_4648$R_sd_mean + Data_elev_4648$R_sd_se), 4648, 
-         (Data_elev_4648$R_sd_mean - Data_elev_4648$R_sd_se), 4648)
-segments((Data_elev_4660$R_sd_mean + Data_elev_4660$R_sd_se), 4660, 
-         (Data_elev_4660$R_sd_mean - Data_elev_4660$R_sd_se), 4660)
-segments((Data_elev_4690$R_sd_mean + Data_elev_4690$R_sd_se), 4690, 
-         (Data_elev_4690$R_sd_mean - Data_elev_4690$R_sd_se), 4690)
-segments((Data_elev_4698$R_sd_mean + Data_elev_4698$R_sd_se), 4698, 
-         (Data_elev_4698$R_sd_mean - Data_elev_4698$R_sd_se), 4698)
+arrows(Paramo_biocrust_plot$Elevation_masl,
+       Paramo_biocrust_plot$R_sd_mean - Paramo_biocrust_plot$R_sd_se,
+       Paramo_biocrust_plot$Elevation_masl,
+       Paramo_biocrust_plot$R_sd_mean + Paramo_biocrust_plot$R_sd_se,
+       angle = 90, code = 3, length = 0.05)
 
-par(xpd = TRUE)  
-text(-0.5, 4717, "B", cex = 1.5)
+text(4385,4.3,"B",font=2,cex=2)
 
 
 
 ### c) soil stability ----
-par(mgp=c(2.5,1,0), 
-    mar=c(5,0,2,4))
-par(family = "serif")
+par(mar = c(9,5,0,2),
+    mgp = c(3,0.8,0))
 
-plot(Paramo_biocrust_plot$ss_mean,
-     Paramo_biocrust_plot$Elevation_masl, type="b", yaxt = "n", ylab="",
-     xlim=c(1,6), xlab="Soil stability index",
-     cex.axis=1.6, cex.lab=1.6,
-     pch=16, cex=1.6)
-axis(2, at = tick_positions, labels = FALSE)
+plot(Paramo_biocrust_plot$Elevation_masl,
+     Paramo_biocrust_plot$ss_mean,
+     type = "b",
+     pch = 16,
+     cex = 1.8,
+     ylim = c(1,6),
+     xlim = c(4380,4710),
+     xlab = "",
+     ylab = "Soil stability index",
+     cex.axis = 1.9,
+     cex.lab = 2,
+     xaxt = "n")
 
-# Define manual tick positions (elevations)
-tick_positions_r <- c(4400, 4648, 4660, 4690, 4698)
+arrows(Paramo_biocrust_plot$Elevation_masl,
+       Paramo_biocrust_plot$ss_mean - Paramo_biocrust_plot$ss_se,
+       Paramo_biocrust_plot$Elevation_masl,
+       Paramo_biocrust_plot$ss_mean + Paramo_biocrust_plot$ss_se,
+       angle = 90, code = 3, length = 0.05)
 
-# Define the labels you want at those positions (years)
-tick_labels_r <- c(4359, 4648, 4660, 4690, 4698)
-
-axis(side = 4,
-     at = tick_positions_r,
-     labels = tick_labels_r,
-     cex.axis=1.5,
-     las=2) 
-
-segments((Data_elev_4698$ss_mean + Data_elev_4698$ss_se), 4698, 
-         (Data_elev_4698$ss_mean - Data_elev_4698$ss_se), 4698)
-segments(Data_elev_4660$ss_mean, 4656, Data_elev_4359$ss_mean, 4404)
-
-# Right axis with elevation data
-mtext("Elevation (m.a.s.l.)", side=4, line=1.5, 
-      cex=1.1)
-
-par(xpd = TRUE)  
-text(1, 4717, "C", cex = 1.5, cex.lab=1.3)
+segments(4656, Data_elev_4660$ss_mean, 4404, Data_elev_4359$ss_mean)
 
 
-## Figure S2 ----
-# figure in supplementary materials
+# Double x-axis
+axis(1, at = elev_ticks, labels = FALSE)
+axis(1, at = elev_ticks, labels = FALSE, line = 4.5)
+
+usr <- par("usr")
+
+dx <- 3 # extra space to avoid overlapping between axis numbers
+
+
+# First row of labels (elevation)
+text(x = elev_ticks + c(0,0,0,0,dx),
+     y = usr[3] - 0.05 * diff(usr[3:4]),
+     labels = elev_ticks,
+     srt = 90,
+     adj = 1,
+     xpd = TRUE,
+     cex = 1.8)
+
+# Second row of labels (years)
+text(x = elev_ticks + c(0,0,0,0,dx),
+     y = usr[3] - 0.33 * diff(usr[3:4]),
+     labels = year_labels,
+     srt = 90,
+     adj = 1,
+     xpd = TRUE,
+     cex = 1.8)
+
+mtext("Elevation (m a.s.l.)",
+      side = 1,
+      line = 1.7,
+      cex = 1.35)
+
+mtext("Year glacier edge",
+      side = 1,
+      line = 6.5,
+      cex = 1.35)
+
+text(4385,5.8,"C",font=2,cex=2)
+
+dev.off()
+
+
+
+
+## Figure 4 ----
 # load dataset for plotting
-
-Paramo_biocrust_types<- read.csv(
-      file = "data/Paramo_biocrust_types_GitHub.csv", sep = ";", header = T) %>% 
+Paramo_biocrust_types <- read.csv(file = "data/Paramo_biocrust_types_GitHub.csv", 
+                                  sep = ";", header = T) %>% 
       # make sure that the factors are ordered correctly
       mutate(Biocrust_type = factor(Biocrust_type,
               levels = c("Bryophyte", "Lichen", "Cyanobacteria")))
@@ -464,9 +468,8 @@ y_max_top <- max(as.numeric(Paramo_biocrust_types$No_hits), na.rm = TRUE)
 
 # Common theme
 custom_theme <- theme_minimal() +
-  theme(
-    panel.grid = element_blank(),
-    axis.line = element_line(color = "black"),
+  theme(panel.grid = element_blank(),
+        axis.line = element_line(color = "black"),
     
     text = element_text(family = "serif", size = 14),
     axis.title = element_text(size = 16),
@@ -475,8 +478,7 @@ custom_theme <- theme_minimal() +
     legend.title = element_text(size = 15),
     legend.text = element_text(size = 13),
     
-    plot.margin = margin(5, 10, 5, 10)
-  )
+    plot.margin = margin(5, 10, 5, 10))
 
 # plot first the top plot (nr of hits)
 No_hits_plot <- ggplot(Paramo_biocrust_types,
@@ -498,6 +500,7 @@ No_hits_plot <- ggplot(Paramo_biocrust_types,
            size = 5,
            family = "serif") +
   scale_fill_manual(values = custom_colors, name = "Biocrust type") +
+  scale_x_continuous(breaks = year_labels) +
   scale_y_continuous(expand = c(0, 0)) +
   labs(x = NULL, y = "No. of hits") +
   custom_theme +
@@ -518,11 +521,13 @@ Relative_No_hits_plot <- ggplot(Paramo_biocrust_types,
            ymin = 0, ymax = 1,
            fill = NA, color = "black", linetype = "dashed") +
   scale_fill_manual(values = custom_colors, name = "Biocrust type") +
+  scale_x_continuous(breaks = year_labels) +
   scale_y_continuous(expand = c(0, 0)) +
   labs(x = "Year glacier edge",
        y = "Relative no. of hits") +
   custom_theme +
-  theme(legend.position = "none")
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 
 tiff('figures/Fig_Paramo_biocrust_types.tiff', units = "in", width = 8, 
      height = 7, res = 600)
